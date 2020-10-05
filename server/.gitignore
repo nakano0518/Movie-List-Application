@@ -1,0 +1,3 @@
+# git status --ignored で無視されてるか確認
+.env
+/node_modules/
