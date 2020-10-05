@@ -21,7 +21,7 @@ app.use(
   "/graphql",
   graphqlHTTP({
     schema,
-    graphiql: true, //バックエンドのみでテストができるようにするツール
+    graphiql: true, // "http://localhost:4000/graphql"にアクセスし、graphiqlの画面でGraphQLのクエリを書くことでmongoDBを直接操作できる(動作確認に使える)
   })
 );
 

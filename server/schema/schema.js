@@ -137,7 +137,7 @@ const Mutation = new GraphQLObjectType({
     updateDirector: {
       type: DirectorType,
       args: {
-        id: { type: GraphQLNonNull(GraphQLID) }, //ID値でnotnull制約
+        id: { type: GraphQLNonNull(GraphQLID) }, //IDで検索するので含める//GraphQLNonNull(GraphQLID):ID値にnonnull制約
         name: { type: GraphQLString },
         age: { type: GraphQLInt },
       },
@@ -148,6 +148,24 @@ const Mutation = new GraphQLObjectType({
         return Director.findByIdAndUpdate(args.id, updateDirector, {
           new: true,
         }); //第三引数に{new:true}を渡すことで結果が返却
+      },
+    },
+    deleteMovie: {
+      type: MovieType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        return Movie.findByIdAndRemove(args.id);
+      },
+    },
+    deleteDirector: {
+      type: DirectorType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) },
+      },
+      resolve(parent, args) {
+        return Director.findByIdAndRemove(args.id);
       },
     },
   },
