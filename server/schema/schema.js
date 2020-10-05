@@ -1,8 +1,17 @@
 //スキーマ: GraphQLのAPIの仕様を表現するもの、データやデータのリレーション等を記載
 const graphql = require("graphql"); //required "npm install graphql"
 const Movie = require("../models/movie");
+const Director = require("../models/director");
+
 // type(型)のひな形
-const { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLSchema } = graphql;
+const {
+  GraphQLObjectType,
+  GraphQLID,
+  GraphQLString,
+  GraphQLSchema,
+  GraphQLInt,
+  GraphQLList,
+} = graphql;
 
 const MovieType = new GraphQLObjectType({
   name: "Movie",
@@ -14,6 +23,28 @@ const MovieType = new GraphQLObjectType({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
     genre: { type: GraphQLString },
+    director: {
+      type: DirectorType,
+      //movieに関連するDirector情報を取得するためresolve()関数を定義
+      resolve(parent, args) {
+        return Director.findById(parent.directorId);
+      },
+    },
+  }),
+});
+
+const DirectorType = new GraphQLObjectType({
+  name: "Director",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    age: { type: GraphQLInt },
+    movies: {
+      type: new GraphQLList(MovieType), //hasmanyでListになるのでGraphQLListを使用
+      resolve(parent, args) {
+        return Movie.find({ directorId: parent.id });
+      },
+    },
   }),
 });
 
@@ -24,9 +55,16 @@ const RootQuery = new GraphQLObjectType({
   fields: {
     movie: {
       type: MovieType,
-      args: { id: { type: GraphQLString } }, //API検索時に渡すパラメータ
+      args: { id: { type: GraphQLID } }, //API検索時に渡すパラメータ
       resolve(parents, args) {
         return Movie.findById(args.id);
+      },
+    },
+    director: {
+      type: DirectorType,
+      args: { id: { type: GraphQLID } }, //GraphQLIDはstringとintを許容し、string型で格納
+      resolve(parents, args) {
+        return Director.findById(args.id);
       },
     },
   },
@@ -40,13 +78,29 @@ const Mutation = new GraphQLObjectType({
       args: {
         name: { type: GraphQLString },
         genre: { type: GraphQLString },
+        directorId: { type: GraphQLID },
       },
       resolve(parents, args) {
         let movie = new Movie({
           name: args.name,
           genre: args.genre,
+          directorId: args.directorId,
         });
         return movie.save(); //saveしてその結果が返却されるようにreturn
+      },
+    },
+    addDirector: {
+      type: DirectorType,
+      args: {
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt },
+      },
+      resolve(parents, args) {
+        let director = new Director({
+          name: args.name,
+          age: args.age,
+        });
+        return director.save();
       },
     },
   },
