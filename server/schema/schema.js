@@ -49,7 +49,7 @@ const DirectorType = new GraphQLObjectType({
 });
 
 //定義したMovieTypeを外部から参照できるようにRootQueryを作成
-//特定のIDのデータ取得
+//特定のIDのデータ取得およびデータ一覧取得
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
@@ -65,6 +65,18 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } }, //GraphQLIDはstringとintを許容し、string型で格納
       resolve(parents, args) {
         return Director.findById(args.id);
+      },
+    },
+    movies: {
+      type: new GraphQLList(MovieType),
+      resolve(parent, args) {
+        return Movie.find({});
+      },
+    },
+    directors: {
+      type: new GraphQLList(DirectorType),
+      resolve(parent, args) {
+        return Director.find({});
       },
     },
   },
