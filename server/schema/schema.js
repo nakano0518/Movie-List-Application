@@ -11,6 +11,7 @@ const {
   GraphQLSchema,
   GraphQLInt,
   GraphQLList,
+  GraphQLNonNull,
 } = graphql;
 
 const MovieType = new GraphQLObjectType({
@@ -81,7 +82,7 @@ const RootQuery = new GraphQLObjectType({
     },
   },
 });
-// データ新規登録
+// データ新規登録および更新
 const Mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
@@ -113,6 +114,40 @@ const Mutation = new GraphQLObjectType({
           age: args.age,
         });
         return director.save();
+      },
+    },
+    updateMovie: {
+      type: MovieType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) }, //ID値でnotnull制約
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        directorId: { type: GraphQLInt },
+      },
+      resolve(parent, args) {
+        let updateMovie = {};
+        args.name && (updateMovie.name = args.name);
+        args.genre && (updateMovie.genre = args.genre);
+        args.directorId && (updateMovie.directorId = args.directorId);
+        return Movie.findByIdAndUpdate(args.id, updateMovie, {
+          new: true,
+        }); //第三引数に{new:true}を渡すことで結果が返却
+      },
+    },
+    updateDirector: {
+      type: DirectorType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) }, //ID値でnotnull制約
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt },
+      },
+      resolve(parent, args) {
+        let updateDirector = {};
+        args.name && (updateDirector.name = args.name);
+        args.age && (updateDirector.age = args.age);
+        return Director.findByIdAndUpdate(args.id, updateDirector, {
+          new: true,
+        }); //第三引数に{new:true}を渡すことで結果が返却
       },
     },
   },
