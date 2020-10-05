@@ -2,9 +2,11 @@ const express = require("express"); //required "npm install express"
 const graphqlHTTP = require("express-graphql").graphqlHTTP; //required "npm install express-graphql"
 const mongoose = require("mongoose"); //required "npm install mongoose"
 const schema = require("./schema/schema");
+const cors = require("cors"); // 異なるドメイン間での通信はできないので、できるようにcorsを操作するため yarn add corsし、require
 const app = express(); // appオブジェクトは、expressでWebアプリを構築する際に必要な変数・メソッドが保持
 require("dotenv").config();
 
+app.use(cors());
 //mongoDBへの接続
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
