@@ -1,6 +1,7 @@
 const express = require("express"); //required "npm install express"
 const graphqlHTTP = require("express-graphql").graphqlHTTP; //required "npm install express-graphql"
 const mongoose = require("mongoose"); //required "npm install mongoose"
+const schema = require("./schema/schema");
 const app = express(); // appオブジェクトは、expressでWebアプリを構築する際に必要な変数・メソッドが保持
 require("dotenv").config();
 
@@ -16,7 +17,13 @@ mongoose.connection.once("open", () => {
 
 // GraphQLにおける1つのエンドポイント(のためのミドルウェア)を作成(appのuseメソッド)
 // 第一引数(パス)、第二引数(ハンドラー)、ハンドラーでスキーマを定義
-app.use("/graphql", graphqlHTTP({}));
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema,
+    graphiql: true, //バックエンドのみでテストができるようにするツール
+  })
+);
 
 // サーバー起動、第一引数(ポート番号)、第二引数(コールバック関数)
 // ホットリロード機能にするため、npm install nodemonを実行、nodemon appで起動しホットリロード機能が有効
